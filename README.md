@@ -1,43 +1,43 @@
-# Shadcn Figma Plugin
+# Cardify Plugin
 
-A template for creating a Figma plugin using Vite, React, Tailwind, and Shadcn/UI.
+Шаблон для создания Figma плагина с использованием Vite, React, Tailwind и Shadcn/UI.
 
 https://github.com/user-attachments/assets/8cf9a283-f02b-48d6-be5b-77d54607aefe
 
-## Quick Start
+## Быстрый старт
 
-Install Dependencies
+### Установка зависимостей
 
 - npm - `npm i`
 
-Build the PLugin
+### Сборка плагина
 
 - npm - `npm run build`
 
-Development Mode
+### Режим разработки
 
 - npm - `npm run dev`
 
-## Add Plugin to Figma
+## Добавление плагина в Figma
 
-1. Open Figma
-2. Select Figma Menu > Plugins > Development > Import Plugin from Manifest
-3. Select the `manifest.json` file in the `dist` folder
+1. Откройте Figma
+2. Выберите Figma Menu > Plugins > Development > Import Plugin from Manifest
+3. Выберите файл `manifest.json` в папке `dist`
 
-## Technologies Used
+## Используемые технологии
 
-- Typescript
+- TypeScript
 - Vite
 - React
 - TailwindCSS
 - Shadcn
 
-## Credits
+## Авторы
 
-This project was scaffolded using the [Bolt Figma](https://github.com/hyperbrew/bolt-figma) template. You can learn more about how to use this template in the original repository.
+Этот проект был создан на основе шаблона [Bolt Figma](https://github.com/hyperbrew/bolt-figma). Вы можете узнать больше об использовании этого шаблона в оригинальном репозитории.
 
-SVGs are provided by [Vecteezy](https://www.vecteezy.com/).
+Иконки SVG предоставлены [Vecteezy](https://www.vecteezy.com/).
 
-## Acknowledgements
+## Благодарности
 
-This project was initially created as an internship assignment for [KofferX.com](https://kofferx.com).
+Этот проект был первоначально создан в качестве стажировки в [KofferX.com](https://kofferx.com).

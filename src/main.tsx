@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Sparkles, RefreshCw, Image, AlertCircle, CheckCircle, Clock, Copy, Settings, ChevronDown, ChevronUp, Send, History, Download, Plus, X } from "lucide-react";
+import { useState, useEffect, createContext, useContext } from "react";
+import { Sparkles, RefreshCw, Image, AlertCircle, CheckCircle, Clock, Copy, Settings, ChevronDown, ChevronUp, Send, History, Download, Plus, X, Moon, Sun } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,23 @@ type GenerationTask = {
   error?: string;
 };
 
+type Theme = "dark" | "light";
+
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
+};
+
 export const App = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("empty");
   const [healthStatus, setHealthStatus] = useState<"connected" | "offline" | "checking">("checking");
@@ -48,34 +65,37 @@ export const App = () => {
   const [currentTaskId, setCurrentTaskId] = useState("");
   const [progress, setProgress] = useState(0);
   const [generatedImageUrl, setGeneratedImageUrl] = useState("");
+  const [theme, setTheme] = useState<Theme>(() => {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
   const [errorMessage, setErrorMessage] = useState("");
   const [history, setHistory] = useState<GenerationTask[]>([]);
 
   // Load sample data for demo
   useEffect(() => {
-    setTitle("White Sneakers");
-    setPrice("$99");
+    setTitle("Белые кроссовки");
+    setPrice("99");
     setProductImageUrl("https://images.unsplash.com/photo-1549298916-b41d501d3772");
-    setFeatures(["New drop", "Daily comfort"]);
-    setStylePrompt("clean marketplace card, premium background, high contrast");
+    setFeatures(["Новинка", "Ежедневный комфорт"]);
+    setStylePrompt("чистая карточка маркетплейса, премиум фон, высокая контрастность");
     
     // Sample history
     setHistory([
       {
         id: "task_123abc",
-        title: "White Sneakers",
+        title: "Белые кроссовки",
         mode: "compose",
         imageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772",
         status: "completed",
-        timestamp: "2 mins ago"
+        timestamp: "2 мин назад"
       },
       {
         id: "task_456def",
-        title: "Running Shoes",
+        title: "Беговые кроссовки",
         mode: "background",
         status: "failed",
-        timestamp: "5 mins ago",
-        error: "Provider timeout"
+        timestamp: "5 мин назад",
+        error: "Таймаут провайдера"
       }
     ]);
   }, []);
@@ -87,13 +107,13 @@ export const App = () => {
       const response = await fetch(`${backendUrl}/api/health`);
       if (response.ok) {
         setHealthStatus("connected");
-        toast.success("Backend connected");
+        toast.success("Бэкенд подключен");
       } else {
         setHealthStatus("offline");
       }
     } catch (error) {
       setHealthStatus("offline");
-      toast.error("Backend offline - using mock mode");
+      toast.error("Бэкенд недоступен - используется тестовый режим");
     }
   };
 
@@ -114,7 +134,7 @@ export const App = () => {
 
   const handleGenerate = async (isMock: boolean) => {
     if (!title.trim()) {
-      toast.error("Product title is required");
+      toast.error("Требуется название товара");
       return;
     }
 
@@ -153,7 +173,7 @@ export const App = () => {
       setGeneratedImageUrl(mockImageUrl);
       setViewMode("success");
       
-      toast.success(isMock ? "Mock image generated!" : "Image generated successfully!");
+      toast.success(isMock ? "Тестовое изображение сгенерировано!" : "Изображение успешно сгенерировано!");
       
       // Add to history
       const newTask: GenerationTask = {
@@ -162,15 +182,15 @@ export const App = () => {
         mode: mode,
         imageUrl: mockImageUrl,
         status: "completed",
-        timestamp: "Just now"
+        timestamp: "Только что"
       };
       setHistory([newTask, ...history]);
 
     } catch (error: any) {
       clearInterval(progressInterval);
-      setErrorMessage(error.message || "Failed to generate image");
+      setErrorMessage(error.message || "Не удалось сгенерировать изображение");
       setViewMode("error");
-      toast.error("Generation failed");
+      toast.error("Генерация не удалась");
       
       // Add failed task to history
       const failedTask: GenerationTask = {
@@ -178,7 +198,7 @@ export const App = () => {
         title: title,
         mode: mode,
         status: "failed",
-        timestamp: "Just now",
+        timestamp: "Только что",
         error: error.message
       };
       setHistory([failedTask, ...history]);
@@ -188,21 +208,44 @@ export const App = () => {
   const copyImageUrl = () => {
     if (generatedImageUrl) {
       navigator.clipboard.writeText(generatedImageUrl);
-      toast.success("Image URL copied to clipboard");
+      toast.success("URL изображения скопирован в буфер обмена");
     }
   };
 
   const insertIntoFigma = () => {
-    toast.success("Image inserted into Figma (mock action)");
+    toast.success("Изображение вставлено в Figma (тестовое действие)");
   };
 
   const downloadImage = () => {
-    toast.success("Download started (mock action)");
+    toast.success("Скачивание начато (тестовое действие)");
+  };
+
+  useEffect(() => {
+    const root = document.documentElement;
+    console.log("[Theme] Applying theme:", theme, "dark class present:", root.classList.contains("dark"));
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    // Also try body for Figma compatibility
+    if (document.body) {
+      if (theme === "dark") {
+        document.body.classList.add("dark");
+      } else {
+        document.body.classList.remove("dark");
+      }
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
-    <TooltipProvider>
-      <div className="dark min-h-screen bg-background">
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      <TooltipProvider>
+        <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-[400px] min-h-screen bg-background">
           {/* Header */}
           <div className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-lg">
@@ -212,8 +255,8 @@ export const App = () => {
                   <Sparkles className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-foreground">NanoBanana</span>
-                  <span className="text-xs text-muted-foreground">Image Generator</span>
+                  <span className="text-sm font-semibold text-foreground">Cardify</span>
+                  <span className="text-xs text-muted-foreground">Генератор изображений</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -221,20 +264,23 @@ export const App = () => {
                   {healthStatus === "connected" ? (
                     <>
                       <CheckCircle className="mr-1 h-3 w-3" />
-                      Connected
+                      Подключен
                     </>
                   ) : healthStatus === "offline" ? (
                     <>
                       <AlertCircle className="mr-1 h-3 w-3" />
-                      Offline
+                      Не в сети
                     </>
                   ) : (
                     <>
                       <Clock className="mr-1 h-3 w-3 animate-spin" />
-                      Checking
+                      Проверка
                     </>
                   )}
                 </Badge>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={toggleTheme}>
+                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
                 <Button size="icon" variant="ghost" className="h-8 w-8" onClick={checkHealth}>
                   <RefreshCw className="h-4 w-4" />
                 </Button>
@@ -247,18 +293,18 @@ export const App = () => {
               {/* Main Form Section */}
               <Card className="border-border bg-card/50 backdrop-blur">
                 <CardHeader>
-                  <CardTitle className="text-base">Generate Image</CardTitle>
-                  <CardDescription className="text-xs">Configure your product image settings</CardDescription>
+                  <CardTitle className="text-base">Сгенерировать изображение</CardTitle>
+                  <CardDescription className="text-xs">Настройте параметры изображения товара</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Title */}
                   <div className="space-y-2">
                     <Label htmlFor="title" className="text-sm">
-                      Product Title <span className="text-destructive">*</span>
+                      Название товара <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="title"
-                      placeholder="White Sneakers"
+                      placeholder="Белые кроссовки"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className="h-9 text-sm"
@@ -267,21 +313,21 @@ export const App = () => {
 
                   {/* Mode */}
                   <div className="space-y-2">
-                    <Label htmlFor="mode" className="text-sm">Mode</Label>
+                    <Label htmlFor="mode" className="text-sm">Режим</Label>
                     <Select value={mode} onValueChange={(v) => setMode(v as "background" | "compose")}>
                       <SelectTrigger id="mode" className="h-9 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="background">Background</SelectItem>
-                        <SelectItem value="compose">Compose</SelectItem>
+                        <SelectItem value="background">Фон</SelectItem>
+                        <SelectItem value="compose">Композиция</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {/* Product Image URL */}
                   <div className="space-y-2">
-                    <Label htmlFor="imageUrl" className="text-sm">Product Image URL</Label>
+                    <Label htmlFor="imageUrl" className="text-sm">URL изображения товара</Label>
                     <div className="flex gap-2">
                       <Input
                         id="imageUrl"
@@ -298,7 +344,7 @@ export const App = () => {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="text-xs">Upload from Figma selection</p>
+                          <p className="text-xs">Загрузить из Figma</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
@@ -311,7 +357,7 @@ export const App = () => {
                       className="w-full justify-between h-9 text-sm px-0 hover:bg-transparent"
                       onClick={() => setShowAdvanced(!showAdvanced)}
                     >
-                      <span className="text-muted-foreground">Optional fields</span>
+                      <span className="text-muted-foreground">Дополнительные поля</span>
                       {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
 
@@ -319,10 +365,10 @@ export const App = () => {
                       <div className="space-y-4 pt-2">
                         {/* Price */}
                         <div className="space-y-2">
-                          <Label htmlFor="price" className="text-sm">Price</Label>
+                          <Label htmlFor="price" className="text-sm">Цена</Label>
                           <Input
                             id="price"
-                            placeholder="$99"
+                            placeholder="99"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
                             className="h-9 text-sm"
@@ -331,11 +377,11 @@ export const App = () => {
 
                         {/* Features */}
                         <div className="space-y-2">
-                          <Label htmlFor="features" className="text-sm">Features</Label>
+                          <Label htmlFor="features" className="text-sm">Характеристики</Label>
                           <div className="flex gap-2">
                             <Input
                               id="features"
-                              placeholder="Add a feature..."
+                              placeholder="Добавить характеристику..."
                               value={featureInput}
                               onChange={(e) => setFeatureInput(e.target.value)}
                               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addFeature())}
@@ -364,10 +410,10 @@ export const App = () => {
 
                         {/* Style Prompt */}
                         <div className="space-y-2">
-                          <Label htmlFor="stylePrompt" className="text-sm">Style Prompt</Label>
+                          <Label htmlFor="stylePrompt" className="text-sm">Описание стиля</Label>
                           <Textarea
                             id="stylePrompt"
-                            placeholder="clean marketplace card, premium background, high contrast"
+                            placeholder="чистая карточка маркетплейса, премиум фон, высокая контрастность"
                             value={stylePrompt}
                             onChange={(e) => setStylePrompt(e.target.value)}
                             className="min-h-[60px] text-sm resize-none"
@@ -381,10 +427,10 @@ export const App = () => {
                           <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
                               <Label htmlFor="waitForResult" className="text-sm cursor-pointer">
-                                Wait for result
+                                Ждать результат
                               </Label>
                               <p className="text-xs text-muted-foreground">
-                                Block until image is ready
+                                Блокировать до готовности изображения
                               </p>
                             </div>
                             <Switch
@@ -397,10 +443,10 @@ export const App = () => {
                           <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
                               <Label htmlFor="useMockMode" className="text-sm cursor-pointer">
-                                Use Mock mode
+                                Тестовый режим
                               </Label>
                               <p className="text-xs text-muted-foreground">
-                                Test with /api/generate/mock
+                                Тестировать через /api/generate/mock
                               </p>
                             </div>
                             <Switch
@@ -413,7 +459,7 @@ export const App = () => {
 
                         {/* Max Wait Time */}
                         <div className="space-y-2">
-                          <Label htmlFor="maxWait" className="text-sm">Max wait time (ms)</Label>
+                          <Label htmlFor="maxWait" className="text-sm">Макс. время ожидания (мс)</Label>
                           <Input
                             id="maxWait"
                             type="number"
@@ -437,7 +483,7 @@ export const App = () => {
                   disabled={viewMode === "loading"}
                 >
                   <Send className="mr-2 h-4 w-4" />
-                  Generate Real
+                  Сгенерировать
                 </Button>
                 <Button
                   size="lg"
@@ -447,7 +493,7 @@ export const App = () => {
                   disabled={viewMode === "loading"}
                 >
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Generate Mock
+                  Тестовый режим
                 </Button>
               </div>
 
@@ -459,9 +505,9 @@ export const App = () => {
                       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                         <Image className="h-8 w-8 text-primary" />
                       </div>
-                      <h3 className="text-sm font-medium text-foreground mb-1">Ready to generate</h3>
+                      <h3 className="text-sm font-medium text-foreground mb-1">Готово к генерации</h3>
                       <p className="text-xs text-muted-foreground">
-                        Configure your settings and click Generate
+                        Настройте параметры и нажмите Сгенерировать
                       </p>
                     </div>
                   )}
@@ -470,12 +516,12 @@ export const App = () => {
                     <div className="space-y-4 py-8">
                       <div className="flex flex-col items-center justify-center text-center mb-4">
                         <Clock className="h-12 w-12 text-primary animate-pulse mb-3" />
-                        <h3 className="text-sm font-medium text-foreground mb-1">Processing...</h3>
+                        <h3 className="text-sm font-medium text-foreground mb-1">Обработка...</h3>
                         <p className="text-xs text-muted-foreground mb-2">
-                          Waiting for NanoBanana AI
+                          Ожидание ответа от Cardify AI
                         </p>
                         <Badge variant="secondary" className="text-xs font-mono">
-                          Task ID: {currentTaskId}
+                          ID задачи: {currentTaskId}
                         </Badge>
                       </div>
                       <div className="space-y-2">
@@ -489,19 +535,19 @@ export const App = () => {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2 mb-3">
                         <CheckCircle className="h-5 w-5 text-green-500" />
-                        <h3 className="text-sm font-medium text-foreground">Generation complete!</h3>
+                        <h3 className="text-sm font-medium text-foreground">Генерация завершена!</h3>
                       </div>
                       
                       <div className="relative overflow-hidden rounded-lg border-2 border-border bg-muted">
                         <img
                           src={generatedImageUrl}
-                          alt="Generated product"
+                          alt="Сгенерированный товар"
                           className="w-full h-auto aspect-square object-cover"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-xs text-muted-foreground">Image URL</Label>
+                        <Label className="text-xs text-muted-foreground">URL изображения</Label>
                         <div className="flex gap-2">
                           <Input
                             value={generatedImageUrl}
@@ -517,11 +563,11 @@ export const App = () => {
                       <div className="grid grid-cols-2 gap-2 pt-2">
                         <Button size="sm" variant="outline" onClick={insertIntoFigma} className="h-9 text-xs">
                           <Image className="mr-1 h-3 w-3" />
-                          Insert into Figma
+                          Вставить в Figma
                         </Button>
                         <Button size="sm" variant="outline" onClick={downloadImage} className="h-9 text-xs">
                           <Download className="mr-1 h-3 w-3" />
-                          Download
+                          Скачать
                         </Button>
                       </div>
                     </div>
@@ -532,9 +578,9 @@ export const App = () => {
                       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
                         <AlertCircle className="h-8 w-8 text-destructive" />
                       </div>
-                      <h3 className="text-sm font-medium text-foreground mb-2">Generation failed</h3>
+                      <h3 className="text-sm font-medium text-foreground mb-2">Генерация не удалась</h3>
                       <p className="text-xs text-muted-foreground max-w-[280px]">
-                        {errorMessage || "An error occurred during generation. Please try again."}
+                        {errorMessage || "Произошла ошибка при генерации. Попробуйте снова."}
                       </p>
                       <Button
                         size="sm"
@@ -542,7 +588,7 @@ export const App = () => {
                         className="mt-4 h-9 text-xs"
                         onClick={() => setViewMode("empty")}
                       >
-                        Try again
+                        Попробовать снова
                       </Button>
                     </div>
                   )}
@@ -554,7 +600,7 @@ export const App = () => {
                 <Card className="border-border bg-card/50 backdrop-blur">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">Recent generations</CardTitle>
+                      <CardTitle className="text-sm">Недавние генерации</CardTitle>
                       <History className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </CardHeader>
@@ -586,7 +632,7 @@ export const App = () => {
                                   variant={task.status === "completed" ? "default" : "destructive"}
                                   className="text-[10px] h-4 px-1.5"
                                 >
-                                  {task.status}
+                                  {task.status === "completed" ? "Завершено" : task.status === "failed" ? "Ошибка" : task.status}
                                 </Badge>
                               </div>
                               <p className="text-[10px] text-muted-foreground font-mono truncate">
@@ -609,7 +655,7 @@ export const App = () => {
                 <Separator />
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Backend:</span>
+                    <span className="text-muted-foreground">Бэкенд:</span>
                     <Input
                       value={backendUrl}
                       onChange={(e) => setBackendUrl(e.target.value)}
@@ -618,7 +664,7 @@ export const App = () => {
                   </div>
                   <Button size="sm" variant="ghost" className="h-7 text-xs">
                     <Settings className="h-3 w-3 mr-1" />
-                    Settings
+                    Настройки
                   </Button>
                 </div>
                 <div className="text-center">
@@ -627,10 +673,10 @@ export const App = () => {
                     className="text-xs text-primary hover:underline"
                     onClick={(e) => {
                       e.preventDefault();
-                      toast.info("API documentation (mock link)");
+                      toast.info("Документация API (тестовая ссылка)");
                     }}
                   >
-                    View API Docs
+                    Документация API
                   </a>
                 </div>
               </div>
@@ -641,5 +687,6 @@ export const App = () => {
         <Toaster position="bottom-center" theme="dark" />
       </div>
     </TooltipProvider>
+    </ThemeContext.Provider>
   );
 }
