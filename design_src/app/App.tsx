@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { Sparkles, RefreshCw, Image, AlertCircle, CheckCircle, Clock, Copy, Settings, ChevronDown, ChevronUp, Send, History, Download, Plus, X } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { Label } from "./components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
+import { Textarea } from "./components/ui/textarea";
+import { Switch } from "./components/ui/switch";
+import { Badge } from "./components/ui/badge";
+import { Progress } from "./components/ui/progress";
+import { Separator } from "./components/ui/separator";
+import { ScrollArea } from "./components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./components/ui/tooltip";
 import { toast, Toaster } from "sonner";
 
 type ViewMode = "empty" | "loading" | "success" | "error";
@@ -26,7 +26,7 @@ type GenerationTask = {
   error?: string;
 };
 
-export const App = () => {
+export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("empty");
   const [healthStatus, setHealthStatus] = useState<"connected" | "offline" | "checking">("checking");
   const [backendUrl, setBackendUrl] = useState("http://localhost:3001");

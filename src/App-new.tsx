@@ -26,7 +26,7 @@ type GenerationTask = {
   error?: string;
 };
 
-export const App = () => {
+export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("empty");
   const [healthStatus, setHealthStatus] = useState<"connected" | "offline" | "checking">("checking");
   const [backendUrl, setBackendUrl] = useState("http://localhost:3001");
