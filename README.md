@@ -8,15 +8,15 @@ https://github.com/user-attachments/assets/8cf9a283-f02b-48d6-be5b-77d54607aefe
 
 ### Установка зависимостей
 
-- npm - `npm i`
+- pnpm - `pnpm install`
 
 ### Сборка плагина
 
-- npm - `npm run build`
+- pnpm - `pnpm run build`
 
 ### Режим разработки
 
-- npm - `npm run dev`
+- pnpm - `pnpm run dev`
 
 ## Добавление плагина в Figma
 
